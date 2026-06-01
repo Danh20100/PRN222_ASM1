@@ -1,0 +1,26 @@
+@model ChatBotRAG.Web.Models.UploadViewModel
+@{
+    ViewData["Title"] = "Tải tài liệu";
+}
+
+<div class="glass-card" style="max-width: 600px; margin: 0 auto;">
+    <h2 style="margin-top: 0; color: var(--accent-color);"><i class="fa-solid fa-cloud-arrow-up"></i> Tải tài liệu môn học</h2>
+    <p style="color: var(--text-muted); margin-bottom: 2rem;">Hỗ trợ định dạng: PDF, DOCX, TXT. Hệ thống sẽ tự động đọc và cắt nhỏ (chunking).</p>
+
+    @if (!string.IsNullOrEmpty(Model.Message))
+    {
+        <div style="padding: 1rem; margin-bottom: 1.5rem; border-radius: 0.5rem; background: @(Model.IsSuccess ? "rgba(34, 197, 94, 0.2)" : "rgba(239, 68, 68, 0.2)"); color: @(Model.IsSuccess ? "#4ade80" : "#f87171"); border: 1px solid @(Model.IsSuccess ? "rgba(34, 197, 94, 0.3)" : "rgba(239, 68, 68, 0.3)");">
+            <i class="fa-solid @(Model.IsSuccess ? "fa-check-circle" : "fa-circle-exclamation")"></i> @Model.Message
+        </div>
+    }
+
+    <form asp-action="Upload" enctype="multipart/form-data" method="post">
+        <div style="margin-bottom: 1.5rem;">
+            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Chọn file tài liệu</label>
+            <input type="file" asp-for="File" class="form-control" accept=".pdf,.docx,.txt" required />
+            <span asp-validation-for="File" style="color: #f87171; font-size: 0.875rem; margin-top: 0.25rem; display: block;"></span>
+        </div>
+        
+        <button type="submit" class="btn" style="width: 100%;"><i class="fa-solid fa-upload"></i> Upload & Xử lý</button>
+    </form>
+</div>
