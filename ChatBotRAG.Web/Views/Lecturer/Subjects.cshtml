@@ -1,0 +1,83 @@
+@model IEnumerable<ChatBotRAG.DataAccess.Models.Subject>
+@{
+    ViewData["Title"] = "Quản lý môn học & Tài liệu";
+}
+
+<div class="row">
+    <div class="col-12 mb-4">
+        <h2 style="margin-bottom: 5px;">Quản lý môn học</h2>
+        <p class="text-muted">Danh sách các môn học và các tài liệu đã được upload tương ứng.</p>
+    </div>
+</div>
+
+<div class="row" style="display: flex; flex-direction: column; gap: 20px;">
+    @if (Model != null && Model.Any())
+    {
+        foreach (var subject in Model)
+        {
+            <div class="card" style="background: var(--glass-bg); border: 1px solid var(--input-border); border-radius: 12px; padding: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--input-border); padding-bottom: 15px; margin-bottom: 15px;">
+                    <div>
+                        <h3 style="margin: 0; color: #60a5fa;"><i class="fa-solid fa-book"></i> @subject.Name</h3>
+                        <p style="color: var(--text-muted); font-size: 0.9rem; margin: 5px 0 0 0;">Mã môn: @subject.Id</p>
+                    </div>
+                    <span style="background: #374151; color: #fff; padding: 5px 12px; border-radius: 20px; font-size: 0.85rem;">
+                        @subject.Documents.Count tài liệu
+                    </span>
+                </div>
+
+                @if (subject.Documents.Any())
+                {
+                    <table style="width: 100%; border-collapse: collapse; font-size: 0.95rem;">
+                        <thead>
+                            <tr style="color: var(--text-muted); text-align: left;">
+                                <th style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05);">Tên tài liệu</th>
+                                <th style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05);">Trạng thái</th>
+                                <th style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05);">Ngày tải lên</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var doc in subject.Documents.OrderByDescending(d => d.CreatedAt))
+                            {
+                                <tr>
+                                    <td style="padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                        <i class="fa-regular fa-file-lines" style="color: #a78bfa; margin-right: 8px;"></i> @doc.Title
+                                    </td>
+                                    <td style="padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                        @if (doc.Status == "completed")
+                                        {
+                                            <span style="color: #4ade80;"><i class="fa-solid fa-circle-check"></i> Đã xử lý</span>
+                                        }
+                                        else if (doc.Status == "failed")
+                                        {
+                                            <span style="color: #f87171;"><i class="fa-solid fa-circle-xmark"></i> Thất bại</span>
+                                        }
+                                        else
+                                        {
+                                            <span style="color: #fbbf24;"><i class="fa-solid fa-spinner fa-spin"></i> Đang xử lý</span>
+                                        }
+                                    </td>
+                                    <td style="padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-muted);">
+                                        @doc.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <div style="padding: 20px; text-align: center; color: var(--text-muted); font-style: italic; background: rgba(0,0,0,0.1); border-radius: 8px;">
+                        Chưa có tài liệu nào được upload cho môn học này.
+                    </div>
+                }
+            </div>
+        }
+    }
+    else
+    {
+        <div style="padding: 30px; text-align: center; color: var(--text-muted); background: var(--glass-bg); border-radius: 12px; border: 1px solid var(--input-border);">
+            Chưa có dữ liệu môn học.
+        </div>
+    }
+</div>

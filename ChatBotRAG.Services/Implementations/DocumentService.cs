@@ -49,45 +49,49 @@ namespace ChatBotRAG.Services.Implementations
 
             try
             {
-                // 2. Parse text
-                string fullText = "";
-                if (extension == ".pdf")
+                var startInfo = new System.Diagnostics.ProcessStartInfo
                 {
-                    fullText = ExtractTextFromPdf(filePath);
-                }
-                else if (extension == ".docx")
-                {
-                    fullText = ExtractTextFromDocx(filePath);
-                }
-                else if (extension == ".txt")
-                {
-                    fullText = await File.ReadAllTextAsync(filePath);
-                }
-                else
+                    FileName = "python",
+                    Arguments = $"\"c:\\Users\\Admin\\OneDrive\\Desktop\\PRN222_ASM1\\PythonAI\\ingest.py\" \"{filePath}\"",
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    StandardOutputEncoding = Encoding.UTF8
+                };
+
+                using var process = System.Diagnostics.Process.Start(startInfo);
+                if (process == null) throw new Exception("Failed to start python process");
+
+                string output = await process.StandardOutput.ReadToEndAsync();
+                await process.WaitForExitAsync();
+
+                if (process.ExitCode != 0 || output.Contains("\"error\""))
                 {
                     document.Status = "failed";
                     await _documentRepository.UpdateAsync(document);
                     return false;
                 }
 
-                // 3. Chunking (Mock: split by words, ~500 words per chunk)
-                var chunks = CreateChunks(fullText, 500);
+                var options = new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                var chunks = System.Text.Json.JsonSerializer.Deserialize<List<PythonChunkResult>>(output, options);
 
-                // 4. Save Chunks
-                for (int i = 0; i < chunks.Count; i++)
+                if (chunks != null)
                 {
-                    var chunk = new DocumentChunk
+                    for (int i = 0; i < chunks.Count; i++)
                     {
-                        DocumentId = document.Id,
-                        ChunkIndex = i,
-                        Content = chunks[i],
-                        PageNumber = null, // simplified
-                        VectorDbId = "{ \"mock_vector\": [0.1, 0.2, 0.3] }" // Mock embedding
-                    };
-                    await _chunkRepository.AddAsync(chunk);
+                        var chunk = new DocumentChunk
+                        {
+                            DocumentId = document.Id,
+                            ChunkIndex = i,
+                            Content = chunks[i].Content,
+                            PageNumber = null,
+                            VectorDbId = System.Text.Json.JsonSerializer.Serialize(chunks[i].Vector) 
+                        };
+                        await _chunkRepository.AddAsync(chunk);
+                    }
                 }
 
-                // 5. Mark Completed
                 document.Status = "completed";
                 await _documentRepository.UpdateAsync(document);
 
@@ -100,48 +104,14 @@ namespace ChatBotRAG.Services.Implementations
                 return false;
             }
         }
+    }
 
-        private string ExtractTextFromPdf(string filePath)
-        {
-            var sb = new StringBuilder();
-            using (PdfDocument document = PdfDocument.Open(filePath))
-            {
-                foreach (var page in document.GetPages())
-                {
-                    var text = ContentOrderTextExtractor.GetText(page);
-                    sb.AppendLine(text);
-                }
-            }
-            return sb.ToString();
-        }
+    public class PythonChunkResult
+    {
+        [System.Text.Json.Serialization.JsonPropertyName("content")]
+        public string Content { get; set; } = string.Empty;
 
-        private string ExtractTextFromDocx(string filePath)
-        {
-            var sb = new StringBuilder();
-            using (WordprocessingDocument wordDoc = WordprocessingDocument.Open(filePath, false))
-            {
-                var body = wordDoc.MainDocumentPart?.Document.Body;
-                if (body != null)
-                {
-                    foreach (var para in body.Elements<Paragraph>())
-                    {
-                        sb.AppendLine(para.InnerText);
-                    }
-                }
-            }
-            return sb.ToString();
-        }
-
-        private List<string> CreateChunks(string text, int wordsPerChunk)
-        {
-            var words = text.Split(new[] { ' ', '\r', '\n', '\t' }, StringSplitOptions.RemoveEmptyEntries);
-            var chunks = new List<string>();
-            for (int i = 0; i < words.Length; i += wordsPerChunk)
-            {
-                var chunkWords = words.Skip(i).Take(wordsPerChunk);
-                chunks.Add(string.Join(" ", chunkWords));
-            }
-            return chunks;
-        }
+        [System.Text.Json.Serialization.JsonPropertyName("vector")]
+        public List<float> Vector { get; set; } = new List<float>();
     }
 }

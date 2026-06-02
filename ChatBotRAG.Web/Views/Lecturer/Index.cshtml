@@ -1,6 +1,6 @@
 @model IEnumerable<ChatBotRAG.DataAccess.Models.Subject>
 @{
-    ViewData["Title"] = "Trang chủ";
+    ViewData["Title"] = "Tương tác & Upload";
 }
 
 <style>
@@ -212,8 +212,21 @@
         </div>
 
         <div class="input-container">
+            <div class="file-preview" id="filePreview">
+                <i class="fa-solid fa-file-lines"></i>
+                <span id="fileName">document.pdf</span>
+                <i class="fa-solid fa-xmark remove-file" onclick="removeFile()"></i>
+            </div>
+            
             <div class="input-row">
-                <textarea id="messageInput" placeholder="Gõ câu hỏi của bạn..." oninput="autoResize(this)" onkeydown="checkEnter(event)"></textarea>
+                <!-- Hidden file input -->
+                <input type="file" id="fileInput" style="display:none" accept=".pdf,.txt,.docx" onchange="handleFileSelect(event)">
+                
+                <button class="icon-btn" onclick="document.getElementById('fileInput').click()" title="Đính kèm file (PDF, DOCX, TXT)">
+                    <i class="fa-solid fa-plus"></i>
+                </button>
+                
+                <textarea id="messageInput" placeholder="Kéo thả file hoặc gõ câu hỏi..." oninput="autoResize(this)" onkeydown="checkEnter(event)"></textarea>
                 
                 <button class="icon-btn send-btn" id="sendBtn" onclick="sendMessage()">
                     <i class="fa-solid fa-arrow-up"></i>
@@ -226,17 +239,42 @@
 <script>
     const textarea = document.getElementById('messageInput');
     const sendBtn = document.getElementById('sendBtn');
+    const fileInput = document.getElementById('fileInput');
+    const filePreview = document.getElementById('filePreview');
+    const fileNameDisplay = document.getElementById('fileName');
     
+    const dropZone = document.getElementById('dropZone');
     const messagesArea = document.getElementById('messagesArea');
     const typingIndicator = document.getElementById('typingIndicator');
 
     let currentSessionId = '';
+    let selectedFile = null;
+
+    // Drag and Drop Logic
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.style.transform = 'scale(1.02)';
+    });
+    
+    dropZone.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        dropZone.style.transform = 'scale(1)';
+    });
+    
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.style.transform = 'scale(1)';
+        if (e.dataTransfer.files.length > 0) {
+            fileInput.files = e.dataTransfer.files;
+            handleFileSelect({ target: fileInput });
+        }
+    });
 
     function autoResize(el) {
         el.style.height = '24px';
         el.style.height = (el.scrollHeight) + 'px';
         
-        if(el.value.trim().length > 0) {
+        if(el.value.trim().length > 0 || selectedFile != null) {
             sendBtn.classList.add('active');
         } else {
             sendBtn.classList.remove('active');
@@ -249,6 +287,33 @@
             sendMessage();
         }
     }
+
+    function handleFileSelect(e) {
+        if (e.target.files.length > 0) {
+            selectedFile = e.target.files[0];
+            fileNameDisplay.textContent = selectedFile.name;
+            filePreview.classList.add('active');
+            sendBtn.classList.add('active');
+        }
+    }
+
+    function removeFile() {
+        selectedFile = null;
+        fileInput.value = '';
+        filePreview.classList.remove('active');
+        if(textarea.value.trim().length === 0) {
+            sendBtn.classList.remove('active');
+        }
+    }
+    
+    // Handle paste event for files
+    textarea.addEventListener('paste', e => {
+        if (e.clipboardData.files.length > 0) {
+            e.preventDefault();
+            fileInput.files = e.clipboardData.files;
+            handleFileSelect({ target: fileInput });
+        }
+    });
 
     function appendMessage(text, role) {
         const block = document.createElement('div');
@@ -265,20 +330,34 @@
 
     async function sendMessage() {
         const text = textarea.value.trim();
-        if (!text) return;
+        if (!text && !selectedFile) return;
 
+        // Show messages area if hidden
         messagesArea.classList.add('active');
+
+        // Prepare UI for sending
+        let userDisplayText = text;
+        if (selectedFile) {
+            userDisplayText = `[Đã đính kèm file: ${selectedFile.name}]\n${text}`;
+        }
         
-        appendMessage(text, 'user');
+        appendMessage(userDisplayText, 'user');
         
         const formData = new FormData();
         formData.append('SessionId', currentSessionId);
         formData.append('Message', text);
+        // Lấy SubjectId để xử lý giới hạn phạm vi trong tương lai
         const subjectId = document.getElementById('subjectSelect').value;
         formData.append('SubjectId', subjectId);
+        
+        if (selectedFile) {
+            formData.append('File', selectedFile);
+        }
 
+        // Clear input
         textarea.value = '';
         textarea.style.height = '24px';
+        removeFile();
         
         textarea.disabled = true;
         typingIndicator.classList.add('active');

@@ -6,8 +6,11 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 
+using Microsoft.AspNetCore.Authorization;
+
 namespace ChatBotRAG.Web.Controllers
 {
+    [Authorize]
     public class ChatController : Controller
     {
         private readonly IChatService _chatService;
@@ -51,7 +54,8 @@ namespace ChatBotRAG.Web.Controllers
                     }
 
                     // Chunk & Embed local process
-                    bool success = await _documentService.ProcessFileAsync(filePath, Guid.Parse("11111111-1111-1111-1111-111111111111"));
+                    Guid docSubjectId = request.SubjectId ?? Guid.Parse("11111111-1111-1111-1111-111111111111");
+                    bool success = await _documentService.ProcessFileAsync(filePath, docSubjectId);
                     
                     if (success)
                         systemMessage += $"[Hệ thống: Đã xử lý và lưu trữ tài liệu '{request.File.FileName}' thành công] ";
@@ -91,5 +95,6 @@ namespace ChatBotRAG.Web.Controllers
         public Guid SessionId { get; set; }
         public string? Message { get; set; }
         public IFormFile? File { get; set; }
+        public Guid? SubjectId { get; set; } // Giới hạn phạm vi
     }
 }

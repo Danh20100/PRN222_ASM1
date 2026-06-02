@@ -3,11 +3,20 @@ using ChatBotRAG.DataAccess.Repositories;
 using ChatBotRAG.Services.Implementations;
 using ChatBotRAG.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Account/Login";
+        options.LogoutPath = "/Account/Logout";
+        options.AccessDeniedPath = "/Account/AccessDenied";
+    });
 
 // Database context
 builder.Services.AddDbContext<ChatBotDbContext>(options =>
@@ -35,6 +44,8 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(

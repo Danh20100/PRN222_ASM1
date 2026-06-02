@@ -5,8 +5,11 @@ using Microsoft.AspNetCore.Mvc;
 using System.IO;
 using System.Threading.Tasks;
 
+using Microsoft.AspNetCore.Authorization;
+
 namespace ChatBotRAG.Web.Controllers
 {
+    [Authorize(Roles = "Admin,admin,Lecturer,lecturer")]
     public class DocumentController : Controller
     {
         private readonly IDocumentService _documentService;

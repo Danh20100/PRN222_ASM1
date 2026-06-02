@@ -1,0 +1,109 @@
+@{
+    ViewData["Title"] = "Dashboard Nghiên cứu RBL";
+}
+
+<div class="row">
+    <div class="col-12 mb-4">
+        <h2 style="margin-bottom: 5px;">Module Nghiên Cứu (RBL)</h2>
+        <p class="text-muted">Dashboard hiển thị kết quả thực nghiệm và so sánh các mô hình AI (Benchmark).</p>
+    </div>
+</div>
+
+<!-- Tổng quan -->
+<div class="row" style="display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 30px;">
+    <!-- So sánh RAG vs Fine-Tuned -->
+    <div class="card" style="background: var(--glass-bg); border: 1px solid var(--input-border); border-radius: 16px; padding: 24px; flex: 1; min-width: 300px;">
+        <h3 style="margin-top: 0; font-size: 1.1rem; color: #60a5fa;"><i class="fa-solid fa-code-compare"></i> RAG vs Fine-tuned</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">Độ chính xác trung bình trên tập test</p>
+        
+        <div style="margin-bottom: 15px;">
+            <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 5px;">
+                <span>RAG Pipeline</span>
+                <span style="font-weight: bold; color: #4ade80;">92%</span>
+            </div>
+            <div style="background: #374151; border-radius: 10px; height: 8px; overflow: hidden;">
+                <div style="background: #4ade80; width: 92%; height: 100%;"></div>
+            </div>
+        </div>
+
+        <div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 5px;">
+                <span>Fine-tuned LLM</span>
+                <span style="font-weight: bold; color: #fbbf24;">86%</span>
+            </div>
+            <div style="background: #374151; border-radius: 10px; height: 8px; overflow: hidden;">
+                <div style="background: #fbbf24; width: 86%; height: 100%;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Benchmark Chunking -->
+    <div class="card" style="background: var(--glass-bg); border: 1px solid var(--input-border); border-radius: 16px; padding: 24px; flex: 1; min-width: 300px;">
+        <h3 style="margin-top: 0; font-size: 1.1rem; color: #f472b6;"><i class="fa-solid fa-layer-group"></i> Chunking Strategy Benchmark</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">Độ trễ truy xuất (ms) theo kích thước Chunk</p>
+        
+        <div style="display: flex; align-items: flex-end; gap: 10px; height: 120px; padding-top: 20px;">
+            <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px;">
+                <div style="width: 40px; height: 40%; background: #c084fc; border-radius: 4px 4px 0 0;"></div>
+                <span style="font-size: 0.8rem;">150 words<br/>(120ms)</span>
+            </div>
+            <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px;">
+                <div style="width: 40px; height: 60%; background: #c084fc; border-radius: 4px 4px 0 0;"></div>
+                <span style="font-size: 0.8rem;">300 words<br/>(180ms)</span>
+            </div>
+            <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px;">
+                <div style="width: 40px; height: 100%; background: #c084fc; border-radius: 4px 4px 0 0;"></div>
+                <span style="font-size: 0.8rem;">500 words<br/>(320ms)</span>
+            </div>
+            <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px;">
+                <div style="width: 40px; height: 50%; background: #f472b6; border-radius: 4px 4px 0 0;"></div>
+                <span style="font-size: 0.8rem;">Semantic<br/>(150ms)</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Embedding Models -->
+<div class="row">
+    <div class="card" style="background: var(--glass-bg); border: 1px solid var(--input-border); border-radius: 16px; padding: 24px; width: 100%;">
+        <h3 style="margin-top: 0; font-size: 1.1rem; color: #a78bfa;"><i class="fa-solid fa-network-wired"></i> Benchmark Embedding Models</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">Đánh giá các mô hình nhúng (Score out of 100)</p>
+        
+        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.95rem;">
+            <thead>
+                <tr style="border-bottom: 1px solid var(--input-border); color: var(--text-muted);">
+                    <th style="padding: 12px 10px;">Mô hình (Model)</th>
+                    <th style="padding: 12px 10px;">Semantic Score</th>
+                    <th style="padding: 12px 10px;">Vietnamese Context</th>
+                    <th style="padding: 12px 10px;">Chi phí</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <td style="padding: 15px 10px; font-weight: 500;">text-embedding-3-small <span style="font-size: 0.75rem; background: #3b82f6; color: white; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">OpenAI</span></td>
+                    <td style="padding: 15px 10px; color: #4ade80;">95.2</td>
+                    <td style="padding: 15px 10px; color: #4ade80;">92.0</td>
+                    <td style="padding: 15px 10px;">Paid</td>
+                </tr>
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <td style="padding: 15px 10px; font-weight: 500;">PhoBERT-base <span style="font-size: 0.75rem; background: #ef4444; color: white; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">VinAI</span></td>
+                    <td style="padding: 15px 10px; color: #fbbf24;">88.5</td>
+                    <td style="padding: 15px 10px; color: #4ade80;">94.5</td>
+                    <td style="padding: 15px 10px; color: #4ade80;">Free</td>
+                </tr>
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <td style="padding: 15px 10px; font-weight: 500;">multilingual-e5-base</td>
+                    <td style="padding: 15px 10px; color: #fbbf24;">89.0</td>
+                    <td style="padding: 15px 10px; color: #fbbf24;">87.2</td>
+                    <td style="padding: 15px 10px; color: #4ade80;">Free</td>
+                </tr>
+                <tr>
+                    <td style="padding: 15px 10px; font-weight: 500;">bge-m3 <span style="font-size: 0.75rem; background: #8b5cf6; color: white; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">BAAI</span></td>
+                    <td style="padding: 15px 10px; color: #4ade80;">93.1</td>
+                    <td style="padding: 15px 10px; color: #fbbf24;">89.8</td>
+                    <td style="padding: 15px 10px; color: #4ade80;">Free</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

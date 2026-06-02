@@ -1,0 +1,232 @@
+@{
+    ViewData["Title"] = "Đăng nhập";
+    Layout = null; // Don't use the standard layout for the login page
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - ChatBot RAG</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #0f1115;
+            --text-main: #eaddcf;
+            --text-muted: #9ca3af;
+            --accent: #6366f1;
+            --accent-hover: #4f46e5;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            background-image: radial-gradient(circle at top right, rgba(99, 102, 241, 0.15), transparent 40%),
+                              radial-gradient(circle at bottom left, rgba(168, 85, 247, 0.15), transparent 40%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            padding: 40px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .logo-area {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo-area i {
+            font-size: 3rem;
+            color: var(--accent);
+            margin-bottom: 15px;
+            filter: drop-shadow(0 0 10px rgba(99, 102, 241, 0.5));
+        }
+
+        .logo-area h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0;
+            letter-spacing: 0.5px;
+        }
+
+        .logo-area p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 14px 16px 14px 45px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: rgba(0, 0, 0, 0.4);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+
+        .form-control::placeholder {
+            color: #6b7280;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .btn-submit:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -10px rgba(99, 102, 241, 0.5);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        .error-msg {
+            background: rgba(239, 68, 68, 0.1);
+            color: #f87171;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .hints {
+            margin-top: 25px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 12px;
+        }
+        
+        .hints span {
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        @@keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <div class="logo-area">
+            <i class="fa-solid fa-layer-group"></i>
+            <h1>Hệ Thống ChatBot RAG</h1>
+            <p>Đăng nhập để tiếp tục</p>
+        </div>
+
+        @if (ViewData["Error"] != null)
+        {
+            <div class="error-msg">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                @ViewData["Error"]
+            </div>
+        }
+
+        <form method="post" action="/Account/Login">
+            <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
+            
+            <div class="form-group">
+                <label>Tài khoản</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-user"></i>
+                    <input type="text" name="username" class="form-control" placeholder="Nhập tên đăng nhập" required autocomplete="username">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Mật khẩu</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" name="password" class="form-control" placeholder="Nhập mật khẩu" required autocomplete="current-password">
+                </div>
+            </div>
+
+            <button type="submit" class="btn-submit">
+                Đăng nhập
+            </button>
+        </form>
+
+        <div class="hints">
+            <strong>Tài khoản thử nghiệm (Mật khẩu: 123)</strong><br />
+            Admin: <span>admin</span> | Giảng viên: <span>lecturer</span> | Sinh viên: <span>student</span>
+        </div>
+    </div>
+
+</body>
+</html>

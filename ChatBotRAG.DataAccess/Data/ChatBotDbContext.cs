@@ -13,6 +13,7 @@ namespace ChatBotRAG.DataAccess.Data
         public DbSet<ChatSession> ChatSessions { get; set; }
         public DbSet<ChatMessage> ChatMessages { get; set; }
         public DbSet<MessageCitation> MessageCitations { get; set; }
+        public DbSet<User> Users { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -83,7 +84,25 @@ namespace ChatBotRAG.DataAccess.Data
 
             // Seed data to prevent foreign key errors when inserting Documents
             modelBuilder.Entity<Subject>().HasData(
-                new Subject { Id = Guid.Parse("11111111-1111-1111-1111-111111111111"), Name = "General", Description = "General Documents", CreatedAt = DateTime.UtcNow }
+                new Subject { Id = Guid.Parse("11111111-1111-1111-1111-111111111111"), Name = "General", Description = "General Documents", CreatedAt = DateTime.UtcNow },
+                new Subject { Id = Guid.Parse("22222222-2222-2222-2222-222222222222"), Name = "Kỹ thuật phần mềm", Description = "Software Engineering", CreatedAt = DateTime.UtcNow },
+                new Subject { Id = Guid.Parse("33333333-3333-3333-3333-333333333333"), Name = "Cấu trúc dữ liệu", Description = "Data Structures", CreatedAt = DateTime.UtcNow }
+            );
+
+            // User
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Username).IsRequired().HasMaxLength(50);
+                entity.HasIndex(e => e.Username).IsUnique();
+                entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+            });
+
+            // Seed Users
+            modelBuilder.Entity<User>().HasData(
+                new User { Id = Guid.Parse("22222222-2222-2222-2222-222222222222"), Username = "admin", PasswordHash = "123", Role = "Admin", CreatedAt = DateTime.UtcNow },
+                new User { Id = Guid.Parse("33333333-3333-3333-3333-333333333333"), Username = "lecturer", PasswordHash = "123", Role = "Lecturer", CreatedAt = DateTime.UtcNow },
+                new User { Id = Guid.Parse("44444444-4444-4444-4444-444444444444"), Username = "student", PasswordHash = "123", Role = "Student", CreatedAt = DateTime.UtcNow }
             );
         }
     }
